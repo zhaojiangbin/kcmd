@@ -10,8 +10,9 @@ Kcmd provides a single key access to the following functionality:
 
 - Move or duplicate the current line or active region in both directions.
 
-- Select a line range using avy in one of the visible windows, then
-  execute one of the following actions to the lines in the range:
+- Select a line range using avy in a visible window (excluding the
+  minibuffer one), then execute one of the following actions to the
+  lines in the range:
 
   - erase: delete the lines,
   - kill: move the lines to top of the kill ring,
@@ -26,6 +27,62 @@ Kcmd depends on hydra, avy and the move-dup. The first two packages
 are available from MELPA. Move-dup is a built-in package at least in
 version 24.5.
 
+** Hydra
+The main user interface of kcmd is a hydra that allows foreign keys
+(i.e. with ':foreigh-keys run'). The hydra defines the following
+non-exiting heads:
+
+- n :: Move the current line or the active region down, one line or
+       ARG lines at a time where ARG is the numeric prefix.
+
+- N :: Duplicate the current line or the active region below the
+       current line. With a numeric prefix ARG, duplicate ARG times.
+
+- p :: Same as the 'n' head except that the move direction is up.
+
+- P :: Same as the 'N' head except that the duplication result is
+       above the current line.
+
+- e :: Delete the range of lines selected with avy, in the selected
+       window. The deleted lines do not go to the kill ring. Calls the
+       function delete-region.
+
+- k :: Same as the 'e' head except that the deleted lines go to the
+       kill ring as the top entry. Calls the function kill-region.
+
+- c :: Same as the 'k' head except that the source lines are
+       copied. Calls the function copy-region-as-kill.
+
+- m :: Move the range of lines selected with avy, in the selected
+       window, to the line below the current line.
+
+- d :: Same as the 'm' head except that the source lines are copied.
+
+- w :: Choose a live window, initially the selected one, to select a
+       range of lines in it. With a prefix, toggle the value in
+       kcmd-window-frames first.
+
+       If the chosen window is the current one, the word "this" is
+       displayed in the hydra's hint in the face specified by variable
+       kcmd-window-face. When a window other than the current one is
+       selected, the word "other" is shown, followed by name of that
+       window's buffer. If the chosen window is on a different frame,
+       the hint shows an asterisk.
+
+Finally pressing ESC exits from the hydra.
+
+The 'n', 'N', 'p' and 'P' heads use functions provided by move-dup.
+
+The 'e', 'k', 'c', 'm' and 'd' heads select two ends of a line range
+using the avy-with macro from the avy package. When prefixed with a
+number, these heads select the first end of the range using avy-with,
+then finds the other end by move ARG lines.
+
+The 'm' and 'd' heads are inspired by functions avy-copy-line and
+avy-move-line in the avy package. When the variable avy-all-windows is
+non-nil, these two functions can copy/move from a window other than
+the current one.
+
 ** Configuration
 *** Basic
 Save the file kcmd.el in one of your load-path, then:
@@ -35,5 +92,74 @@ Save the file kcmd.el in one of your load-path, then:
   (global-set-key (kbd "C-c m") 'kcmd-hydra/body)
 #+END_SRC
 Replace "C-c m" with the key sequence of your choice, of course.
+
 *** Advanced
-TODO: describe the customization.
+Kcmd has the following customization, in the group named kcmd,
+available:
+
+- kcmd-window-frames
+
+  Specifies the frames or frame on which the avy source window is
+  selected. There are currently two choices for this variable: nil and
+  visible. When the value is nil, all windows on the selected frame
+  can be used as the avy source window. When the value is visible, all
+  windows on all visible frames are available. The default value is
+  nil.
+
+- kcmd-window-face
+
+  Takes a symbol of a defined face. In hydra's hint, the word "this"
+  or "other" is shown in this face, indicating where the avy line
+  range is to be selected. The default face, named kcmd-window,
+  inherits from the built-in face named warning.
+
+- kcmd-buffer-name-max-length
+
+  When avy source windows is not the selected window, the buffer name
+  of another window is shown in the hydra's hint. This variable
+  specifies the length limit beyond which the buffer name is
+  shortened, according to the value in the next variable named
+  kcmd-buffer-name-shorten-style.
+
+- kcmd-buffer-name-shorten-filler
+
+  Value of this variable should be a short string to replace the
+  portion to be shortened from buffer name strings. The default value
+  is "..." reprsenting an ellipsis.
+
+- kcmd-buffer-name-shorten-style
+
+  This variable controls how a buffer name is shortened when it is too
+  long for being displayed in the hydra:
+
+  - middle
+
+    This is the default value. A portion of the buffer name string is
+    replaced with the filler string. For example,
+    "~/path/to...dir/file.el".
+
+  - beginning
+
+    The beginning portion of the buffer name string is replaced with
+    the filler string. For example, ".../to/a/dir/file.el".
+
+  - end
+
+    The end portion of the buffer name string is replaced with the
+    filler string. For example, "~/path/to/a/dir/f...".
+
+- kcmd-hydra-run-body-pre
+
+  Value of this variable must be either nil, or a lambda, or a
+  function symbol. When non-nil, the variable specifies the function
+  to run in the hydra's :body-pre hook. A good usage would be to
+  change the cursor color while the hydra is active. Obviously if this
+  variable is customized, the next should be, too. The default value
+  is nil.
+
+- kcmd-hydra-run-before-exit
+
+  When the value of this variable is non-nil, it specifies the
+  function to run in the hydra's :before-exit hook. For example, if
+  the cursor color was changed in the :body-pre hook, it should be
+  restored here. The default value is nil.
