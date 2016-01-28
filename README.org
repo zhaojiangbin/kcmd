@@ -1,0 +1,39 @@
+#+TITLE: README
+
+* Summary
+
+Kcmd is a Lisp package based on external Lisp packages hydra
+(https://github.com/abo-abo/hydra), avy
+(https://github.com/abo-abo/avy) and the built-in package move-dup.
+
+Kcmd provides a single key access to the following functionality:
+
+- Move or duplicate the current line or active region in both directions.
+
+- Select a line range using avy in one of the visible windows, then
+  execute one of the following actions to the lines in the range:
+
+  - erase: delete the lines,
+  - kill: move the lines to top of the kill ring,
+  - copy: add the lines to top of the kill ring,
+  - move: move the lines to where the point is,
+  - duplicate: duplicate the lines to where the point is.
+
+* Usage
+
+** Installation
+Kcmd depends on hydra, avy and the move-dup. The first two packages
+are available from MELPA. Move-dup is a built-in package at least in
+version 24.5.
+
+** Configuration
+*** Basic
+Save the file kcmd.el in one of your load-path, then:
+#+BEGIN_SRC emacs-lisp
+  (load "/path/to/kcmd")
+  (require 'kcmd)
+  (global-set-key (kbd "C-c m") 'kcmd-hydra/body)
+#+END_SRC
+Replace "C-c m" with the key sequence of your choice, of course.
+*** Advanced
+TODO: describe the customization.
