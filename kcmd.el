@@ -32,9 +32,8 @@
 
 ;;;;;; public ;;;;;;
 
-(defface kcmd-buffer-name
-  '((((background dark)) (:foreground "gold"))
-    (((background light)) (:foreground "brown")))
+(defface kcmd-window
+  '((t (:inherit warning)))
   "Face used by kcmd.
 
 For highlighting which window avy to select line range in.")
@@ -45,9 +44,19 @@ region, or by avy line range."
   :prefix "kcmd-"
   :group 'tools)
 
-(defcustom kcmd-buffer-name-face 'kcmd-buffer-name
-  "In the window that avy line range is to be pick, show the
-window's buffer name in this face."
+(defcustom kcmd-window-frames nil
+  "The frame scope in which the avy source window is
+selected. The possible choices are a sub-set of ALL-FRAMES
+argument to the `next-window' function:
+
+  nil     -- all windows on the selected frame
+  visible -- all windows on all visible frames"
+  :group 'kcmd
+  :type '(choice (const :tag "only selected frame" nil)
+                 (const :tag "all visible frames" visible)))
+
+(defcustom kcmd-window-face 'kcmd-window
+  "Show the word \"this\" or \"other\" in this face."
   :group 'kcmd
   :type 'face)
 
@@ -187,16 +196,21 @@ customize this variable, you might want to look at
   ;; NOTE: kcmd--avy-win should always point at a live window so there
   ;; is always a buffer in that window.
   (if (eq kcmd--avy-win (selected-window))
-      (kcmd--add-face "this" kcmd-buffer-name-face)
+      (kcmd--add-face "this" kcmd-window-face)
     (let* ((name (buffer-name (window-buffer kcmd--avy-win))))
-      (concat (kcmd--add-face "other" kcmd-buffer-name-face)
-              " "
+      (concat (kcmd--add-face "other" kcmd-window-face)
+              (if (eq (selected-frame)
+                      (window-frame kcmd--avy-win))
+                  "" "*")
+              ": "
               (kcmd--fmt-buffer-name name)))))
 
-(defun kcmd--select-avy-win ()
-  (interactive)
-  (let ((that-win (next-window kcmd--avy-win nil 'visible)))
-    (if (one-window-p nil 'visible)
+(defun kcmd--select-avy-win (&optional prefix)
+  (interactive "P")
+  (when prefix
+    (setq kcmd-window-frames (if kcmd-window-frames nil 'visible)))
+  (let ((that-win (next-window kcmd--avy-win nil kcmd-window-frames)))
+    (if (one-window-p nil kcmd-window-frames)
         (message "No other window available.")
       (setq kcmd--avy-win that-win))))
 
