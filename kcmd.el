@@ -32,17 +32,19 @@
 
 ;;;;;; public ;;;;;;
 
-(defface kcmd-window
-  '((t (:inherit warning)))
-  "Face used by kcmd.
-
-For highlighting which window avy to select line range in.")
 
 (defgroup kcmd nil
   "Kill/copy/move/duplicate either current line, or active
 region, or by avy line range."
   :prefix "kcmd-"
   :group 'tools)
+
+(defface kcmd-window
+  '((t (:inherit warning)))
+  "Face used by kcmd.
+
+For highlighting which window avy to select line range in."
+  :group 'kcmd)
 
 (defcustom kcmd-window-frames nil
   "The frame scope in which the avy source window is
