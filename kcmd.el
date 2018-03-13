@@ -1,6 +1,6 @@
 ;;; kcmd.el --- Kill/copy/move/dup region or line range
 
-;; Copyright (C) 2016 Jiangbin Zhao
+;; Copyright (C) 2016, 2018 Jiangbin Zhao
 
 ;; Author: Jiangbin Zhao (zhaojiangbin@gmail.com)
 ;; Version: 0.1
@@ -220,6 +220,7 @@ customize this variable, you might want to look at
   `(when (and ,func (functionp ,func))
      (funcall ,func)))
 
+;;;###autoload
 (defhydra kcmd-hydra
   (:exit nil :hint nil
    :foreign-keys run
