@@ -233,18 +233,18 @@ move/duplicate current line/active region
   _n_/_N_: down  _p_/_P_: up
 
 select avy line range in _w_indow: %s(kcmd--fmt-avy-win)
-  _e_: erase  _k_: kill  _c_: copy  _m_: move  _d_: duplicate
+  _j_unk   _k_ill   _c_opy   _m_ove   dup_l_icate
 
 "
   ("N" md/duplicate-down)
   ("P" md/duplicate-up)
   ("n" md/move-lines-down)
   ("p" md/move-lines-up)
+  ("j" (kcmd--avy-run 'kcmd--avy-erase))
   ("k" (kcmd--avy-run 'kcmd--avy-kill))
   ("c" (kcmd--avy-run 'kcmd--avy-copy))
-  ("e" (kcmd--avy-run 'kcmd--avy-erase))
   ("m" (kcmd--avy-run 'kcmd--avy-move))
-  ("d" (kcmd--avy-run 'kcmd--avy-dup))
+  ("l" (kcmd--avy-run 'kcmd--avy-dup))
   ("w" kcmd--select-avy-win)
   ("<escape>" nil "quit"))
 
