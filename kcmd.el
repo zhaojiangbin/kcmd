@@ -105,8 +105,29 @@ customize this variable, you might want to look at
 
 ;;;;; private ;;;;;;
 
+(defvar kcmd--fringe-bitmap 'right-triangle
+  "Bitmap to indicate selected line.")
+
+(defvar kcmd--fringe-overlay nil
+  "Hold an overlay for the fringe bitmap.")
+(make-variable-buffer-local 'kcmd-fringe-overlay)
+
 ;; The window in which avy selects the lines/region to copy/kill.
 (defvar kcmd--avy-win nil)
+
+(defun kcmd--clear-fringe ()
+  (when kcmd--fringe-overlay
+    (delete-overlay kcmd--fringe-overlay)
+    (setq kcmd--fringe-overlay nil)))
+
+(defun kcmd--display-fringe-at (&optional point)
+  (let ((s "x")
+        (point (or point (point))))
+    (kcmd--clear-fringe)
+    (setq kcmd--fringe-overlay (make-overlay point (1+ point)))
+    (put-text-property
+     0 1 'display (list 'left-fringe kcmd--fringe-bitmap) s)
+    (overlay-put kcmd--fringe-overlay 'before-string s)))
 
 (defmacro kcmd--avy-with-range (cmd arg &rest body)
   (declare (indent defun))
@@ -116,13 +137,17 @@ customize this variable, you might want to look at
        ;; Value in `kcmd--avy-win' can be the selected window.
        (select-window kcmd--avy-win)
        (let* ((val (if ,arg (prefix-numeric-value ,arg)))
-              (beg (avy--line))
-              (end (if ,arg
-                       (save-excursion
-                         (goto-char beg)
-                         (move-end-of-line val)
-                         (line-end-position))
-                     (avy--line)))
+              (beg (let ((pt (avy--line)))
+                     (kcmd--display-fringe-at pt)
+                     pt))
+              (end (prog1
+                       (if ,arg
+                           (save-excursion
+                             (goto-char beg)
+                             (move-end-of-line val)
+                             (line-end-position))
+                         (avy--line))
+                     (kcmd--clear-fringe)))
               (num (if ,arg val (count-lines beg end))))
          ,@body
          num))))
