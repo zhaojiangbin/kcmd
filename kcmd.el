@@ -261,10 +261,10 @@ select avy line range in _w_indow: %s(kcmd--fmt-avy-win)
   _j_unk   _k_ill   _c_opy   _m_ove   dup_l_icate
 
 "
-  ("N" md/duplicate-down)
-  ("P" md/duplicate-up)
-  ("n" md/move-lines-down)
-  ("p" md/move-lines-up)
+  ("N" move-dup-duplicate-down)
+  ("P" move-dup-duplicate-up)
+  ("n" move-dup-move-lines-down)
+  ("p" move-dup-move-lines-up)
   ("j" (kcmd--avy-run 'kcmd--avy-erase))
   ("k" (kcmd--avy-run 'kcmd--avy-kill))
   ("c" (kcmd--avy-run 'kcmd--avy-copy))
